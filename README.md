@@ -4,9 +4,8 @@ languages:
 - java
 products:
 - azure
-extensions:
-- services: Servicebus
-- platforms: java
+description: "Getting Started with Servicebus - Service Bus Queue Advance Features - in Java"
+urlFragment: service-bus-java-manage-queue-with-advanced-features
 ---
 
 # Getting Started with Servicebus - Service Bus Queue Advance Features - in Java #
