@@ -21,27 +21,31 @@ import com.microsoft.azure.management.servicebus.Queue;
 import com.microsoft.azure.management.servicebus.ServiceBusNamespace;
 import com.microsoft.rest.LogLevel;
 import org.joda.time.Period;
+
 import java.io.File;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * Azure Service Bus basic scenario sample. - Create namespace. - Add a queue in
- * namespace with features session and dead-lettering. - Create another queue
- * with auto-forwarding to first queue. [Remove] - Create another queue with
- * dead-letter auto-forwarding to first queue. [Remove] - Create second queue
- * with Deduplication and AutoDeleteOnIdle feature - Update second queue to
- * change time for AutoDeleteOnIdle. - Update first queue to disable dead-letter
- * forwarding and with new Send authorization rule - Update queue to remove the
- * Send Authorization rule. - Get default authorization rule. - Get the keys
- * from authorization rule to connect to queue. - Send a "Hello" message to
- * queue using Data plan sdk for Service Bus. - Delete queue - Delete namespace
+ * Azure Service Bus basic scenario sample.
+ * - Create namespace.
+ * - Add a queue in namespace with features session and dead-lettering.
+ * - Create another queue with auto-forwarding to first queue. [Remove]
+ * - Create another queue with dead-letter auto-forwarding to first queue. [Remove]
+ * - Create second queue with Deduplication and AutoDeleteOnIdle feature
+ * - Update second queue to change time for AutoDeleteOnIdle.
+ * - Update first queue to disable dead-letter forwarding and with new Send authorization rule
+ * - Update queue to remove the Send Authorization rule.
+ * - Get default authorization rule.
+ * - Get the keys from authorization rule to connect to queue.
+ * - Send a "Hello" message to queue using Data plan sdk for Service Bus.
+ * - Delete queue
+ * - Delete namespace
  */
 public final class ServiceBusQueueAdvanceFeatures {
 
     /**
      * Main function which runs the actual sample.
-     * 
      * @param azure instance of the azure client
      * @return true if sample runs successfully
      */
@@ -54,68 +58,78 @@ public final class ServiceBusQueueAdvanceFeatures {
         final String sendRuleName = "SendRule";
 
         try {
-            // ============================================================
+            //============================================================
             // Create a namespace.
 
             System.out.println("Creating name space " + namespaceName + " in resource group " + rgName + "...");
 
-            ServiceBusNamespace serviceBusNamespace = azure.serviceBusNamespaces().define(namespaceName)
-                    .withRegion(Region.US_WEST).withNewResourceGroup(rgName).withSku(NamespaceSku.STANDARD).create();
+            ServiceBusNamespace serviceBusNamespace = azure.serviceBusNamespaces()
+                    .define(namespaceName)
+                    .withRegion(Region.US_WEST)
+                    .withNewResourceGroup(rgName)
+                    .withSku(NamespaceSku.STANDARD)
+                    .create();
 
             System.out.println("Created service bus " + serviceBusNamespace.name());
             Utils.print(serviceBusNamespace);
 
-            // ============================================================
+            //============================================================
             // Add a queue in namespace with features session and dead-lettering.
-            System.out.println("Creating first queue " + queue1Name
-                    + ", with session, time to live and move to dead-letter queue features...");
+            System.out.println("Creating first queue " + queue1Name + ", with session, time to live and move to dead-letter queue features...");
 
-            Queue firstQueue = serviceBusNamespace.queues().define(queue1Name).withSession()
-                    .withDefaultMessageTTL(new Period().withMinutes(10)).withExpiredMessageMovedToDeadLetterQueue()
-                    .withMessageMovedToDeadLetterQueueOnMaxDeliveryCount(40).create();
+            Queue firstQueue = serviceBusNamespace.queues().define(queue1Name)
+                    .withSession()
+                    .withDefaultMessageTTL(new Period().withMinutes(10))
+                    .withExpiredMessageMovedToDeadLetterQueue()
+                    .withMessageMovedToDeadLetterQueueOnMaxDeliveryCount(40)
+                    .create();
             Utils.print(firstQueue);
 
-            // ============================================================
+            //============================================================
             // Create second queue with Deduplication and AutoDeleteOnIdle feature
 
-            System.out.println(
-                    "Creating second queue " + queue2Name + ", with De-duplication and AutoDeleteOnIdle features...");
+            System.out.println("Creating second queue " + queue2Name + ", with De-duplication and AutoDeleteOnIdle features...");
 
-            Queue secondQueue = serviceBusNamespace.queues().define(queue2Name).withSizeInMB(2048)
-                    .withDuplicateMessageDetection(new Period().withMinutes(10)).withDeleteOnIdleDurationInMinutes(10)
+            Queue secondQueue = serviceBusNamespace.queues().define(queue2Name)
+                    .withSizeInMB(2048)
+                    .withDuplicateMessageDetection(new Period().withMinutes(10))
+                    .withDeleteOnIdleDurationInMinutes(10)
                     .create();
 
             System.out.println("Created second queue in namespace");
 
             Utils.print(secondQueue);
 
-            // ============================================================
+            //============================================================
             // Update second queue to change time for AutoDeleteOnIdle.
 
-            secondQueue = secondQueue.update().withDeleteOnIdleDurationInMinutes(5).apply();
+            secondQueue = secondQueue.update()
+                    .withDeleteOnIdleDurationInMinutes(5)
+                    .apply();
 
             System.out.println("Updated second queue to change its auto deletion time");
 
             Utils.print(secondQueue);
 
-            // =============================================================
-            // Update first queue to disable dead-letter forwarding and with new Send
-            // authorization rule
-            secondQueue = firstQueue.update().withoutExpiredMessageMovedToDeadLetterQueue()
-                    .withNewSendRule(sendRuleName).apply();
+            //=============================================================
+            // Update first queue to disable dead-letter forwarding and with new Send authorization rule
+            secondQueue = firstQueue.update()
+                    .withoutExpiredMessageMovedToDeadLetterQueue()
+                    .withNewSendRule(sendRuleName)
+                    .apply();
 
             System.out.println("Updated first queue to change dead-letter forwarding");
 
             Utils.print(secondQueue);
 
-            // =============================================================
+            //=============================================================
             // Get connection string for default authorization rule of namespace
 
-            PagedList<NamespaceAuthorizationRule> namespaceAuthorizationRules = serviceBusNamespace.authorizationRules()
-                    .list();
+            PagedList<NamespaceAuthorizationRule> namespaceAuthorizationRules = serviceBusNamespace.authorizationRules().list();
             System.out.println("Number of authorization rule for namespace :" + namespaceAuthorizationRules.size());
 
-            for (NamespaceAuthorizationRule namespaceAuthorizationRule : namespaceAuthorizationRules) {
+
+            for (NamespaceAuthorizationRule namespaceAuthorizationRule: namespaceAuthorizationRules) {
                 Utils.print(namespaceAuthorizationRule);
             }
 
@@ -124,11 +138,11 @@ public final class ServiceBusQueueAdvanceFeatures {
             AuthorizationKeys keys = namespaceAuthorizationRules.get(0).getKeys();
             Utils.print(keys);
 
-            // =============================================================
+            //=============================================================
             // Update first queue to remove Send Authorization rule.
             firstQueue.update().withoutAuthorizationRule(sendRuleName).apply();
 
-            // =============================================================
+            //=============================================================
             // Send a message to queue.
 
             try {
