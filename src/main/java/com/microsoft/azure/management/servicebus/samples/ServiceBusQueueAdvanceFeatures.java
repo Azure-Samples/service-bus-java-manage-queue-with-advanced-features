@@ -21,9 +21,9 @@ import com.microsoft.azure.management.servicebus.Queue;
 import com.microsoft.azure.management.servicebus.ServiceBusNamespace;
 import com.microsoft.rest.LogLevel;
 import org.joda.time.Period;
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import java.io.File;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Azure Service Bus basic scenario sample. - Create namespace. - Add a queue in
